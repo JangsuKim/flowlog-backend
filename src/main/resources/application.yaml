@@ -3,13 +3,20 @@ spring:
     url: jdbc:mysql://localhost:3306/flowlog?serverTimezone=Asia/Tokyo&useSSL=false&allowPublicKeyRetrieval=true
     username: root
     password: JsDev@2025
+
+  sql:
+    init:
+      mode: never
+      schema-locations: classpath:schema.sql
+
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: true
     properties:
       hibernate:
         format_sql: true
+
   mvc:
     cors:
       mappings:
@@ -19,5 +26,15 @@ spring:
           allowed-headers: "*"
           allow-credentials: true
 
+  app:
+    jwt:
+      secret: "mysecretkeymysecretkeymysecretkeymysecretkey"
+      expiration: 86400000
+
 server:
   port: 8080
+
+logging:
+  level:
+    org.springframework: INFO
+    org.hibernate.SQL: DEBUG
