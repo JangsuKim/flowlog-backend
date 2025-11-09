@@ -16,7 +16,8 @@ public record ProjectDto(
         String description,
         LocalDate dueDate,
         ProjectStatus status,
-        String ownerName
+        String ownerName,
+        Integer progress
 ) {
     public static ProjectDto fromEntity(Project p) {
         return ProjectDto.builder()
@@ -28,6 +29,7 @@ public record ProjectDto(
                 .dueDate(p.getDueDate())
                 .status(p.getStatus())
                 .ownerName(p.getOwner() != null ? p.getOwner().getName() : null)
+                .progress(p.getProgress())
                 .build();
     }
 }

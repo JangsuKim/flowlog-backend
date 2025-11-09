@@ -62,6 +62,6 @@ public class Project {
 //                .filter(t -> t.getStatus() == TaskStatus.COMPLETED)
 //                .count();
 //        return (int) ((completedCount * 100.0) / tasks.size());
-        return 0;
+        return 50;
     }
 }
