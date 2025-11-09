@@ -4,6 +4,7 @@ import com.flowlog.entity.User;
 import com.flowlog.dto.LoginRequest;
 import com.flowlog.dto.LoginResponse;
 import com.flowlog.dto.RegisterRequest;
+import com.flowlog.enums.RoleType;
 import com.flowlog.repository.UserRepository;
 import com.flowlog.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,7 @@ public class AuthService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setName(request.getName());
-        user.setRole("USER");
+        user.setRole(RoleType.MEMBER);
         return userRepository.save(user);
     }
 
@@ -37,7 +38,8 @@ public class AuthService {
             throw new IllegalArgumentException("이메일 또는 비밀번호가 잘못되었습니다.");
         }
 
-        String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole());
-        return new LoginResponse(token, "Bearer", user.getId(), user.getEmail(), user.getName(), user.getRole());
+        int roleCode = user.getRole().getCode();
+        String token = jwtUtil.generateToken(user.getId(), user.getEmail(), roleCode);
+        return new LoginResponse(token, "Bearer", user.getId(), user.getEmail(), user.getName(), roleCode);
     }
 }

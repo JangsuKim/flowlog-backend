@@ -24,7 +24,7 @@ public class JwtUtil {
     }
 
     // ✅ JWT 생성
-    public String generateToken(Long id, String email, String role) {
+    public String generateToken(Long id, String email, int role) {
         return Jwts.builder()
                 .setSubject(email)
                 .addClaims(Map.of(

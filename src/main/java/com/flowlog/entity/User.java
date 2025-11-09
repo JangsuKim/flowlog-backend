@@ -1,5 +1,7 @@
 package com.flowlog.entity;
 
+import com.flowlog.converter.RoleTypeConverter;
+import com.flowlog.enums.RoleType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -32,8 +34,9 @@ public class User {
     @Column(length = 255)
     private String profileImage;
 
-    @Column(length = 50)
-    private String role;
+    @Convert(converter = RoleTypeConverter.class)
+    @Column(nullable = false)
+    private RoleType role = RoleType.MEMBER;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
