@@ -2,9 +2,11 @@ package com.flowlog.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flowlog.entity.Project;
+import com.flowlog.entity.Team;
 import com.flowlog.entity.User;
 import com.flowlog.enums.ProjectStatus;
 import com.flowlog.repository.ProjectRepository;
+import com.flowlog.repository.TeamRepository;
 import com.flowlog.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,25 +30,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 class ProjectControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private ProjectRepository projectRepository;
-
-    @Autowired
-    private UserRepository userRepository;
+    @Autowired private MockMvc mockMvc;
+    @Autowired private ObjectMapper objectMapper;
+    @Autowired private ProjectRepository projectRepository;
+    @Autowired private UserRepository userRepository;
+    @Autowired private TeamRepository teamRepository;
 
     private User testUser;
+    private Team testTeam;
 
     @BeforeEach
     void setup() {
-        // ✅ DB에 존재하는 테스트 유저 사용
+        // ✅ 테스트용 유저 (DB에 존재하는 유저 사용)
         testUser = userRepository.findByEmail("project_test@flowlog.com")
-                .orElseThrow(() -> new RuntimeException("테스트용 유저(project_test@flowlog.com)가 없습니다."));
+                .orElseThrow(() -> new RuntimeException("테스트 유저(project_test@flowlog.com)가 없습니다."));
+
+        // ✅ 테스트용 팀
+        testTeam = teamRepository.findByName("Backend")
+                .orElseGet(() -> teamRepository.save(Team.builder()
+                        .name("Backend")
+                        .build()));
     }
 
     /**
@@ -58,19 +61,18 @@ class ProjectControllerTest {
         String requestJson = """
             {
               "name": "FlowLog API Test Project",
-              "teamName": "Backend",
+              "teamId": %d,
               "description": "SpringBoot 통합 테스트 프로젝트입니다.",
               "dueDate": "2025-12-31",
               "status": "IN_PROGRESS"
             }
-        """;
+        """.formatted(testTeam.getId());
 
         mockMvc.perform(post("/api/projects")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("FlowLog API Test Project"))
-                .andExpect(jsonPath("$.teamName").value("Backend"))
                 .andExpect(jsonPath("$.status").value("IN_PROGRESS"));
     }
 
@@ -90,26 +92,26 @@ class ProjectControllerTest {
      */
     @Test
     void updateProject() throws Exception {
-        // 1️⃣ 테스트용 프로젝트 저장 (owner 설정 필수)
+        // 1️⃣ 테스트용 프로젝트 저장
         var saved = projectRepository.save(Project.builder()
                 .name("Before Update")
-                .teamName("Frontend")
+                .team(testTeam)
                 .description("테스트용 프로젝트")
                 .dueDate(LocalDate.now().plusDays(5))
                 .status(ProjectStatus.IN_PROGRESS)
-                .owner(testUser) // ✅ FK not null 대응
+                .owner(testUser)
                 .build());
 
         // 2️⃣ 수정 요청 JSON
         String updateJson = """
             {
               "name": "After Update",
-              "teamName": "Frontend",
+              "teamId": %d,
               "description": "수정된 내용입니다.",
               "dueDate": "2025-12-31",
               "status": "COMPLETED"
             }
-        """;
+        """.formatted(testTeam.getId());
 
         mockMvc.perform(put("/api/projects/" + saved.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -126,11 +128,11 @@ class ProjectControllerTest {
     void deleteProject() throws Exception {
         var saved = projectRepository.save(Project.builder()
                 .name("삭제 테스트 프로젝트")
-                .teamName("Backend")
+                .team(testTeam)
                 .description("삭제 테스트용 프로젝트")
                 .dueDate(LocalDate.now().plusDays(3))
                 .status(ProjectStatus.PENDING)
-                .owner(testUser) // ✅ FK not null 대응
+                .owner(testUser)
                 .build());
 
         mockMvc.perform(delete("/api/projects/" + saved.getId()))

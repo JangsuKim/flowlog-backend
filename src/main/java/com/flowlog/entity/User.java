@@ -31,8 +31,10 @@ public class User {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(name = "team_name")
-    private String teamName;
+    // ✅ team_id로 변경
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_id")  // FK 연결
+    private Team team;
 
     @Column(length = 255)
     private String profileImage;

@@ -1,6 +1,7 @@
 package com.flowlog.dto;
 
 import com.flowlog.entity.Project;
+import com.flowlog.entity.Team;
 import com.flowlog.enums.ProjectStatus;
 import lombok.Builder;
 
@@ -10,6 +11,7 @@ import java.time.LocalDate;
 public record ProjectDto(
         Long id,
         String name,
+        Long teamId,
         String teamName,
         String description,
         LocalDate dueDate,
@@ -20,7 +22,8 @@ public record ProjectDto(
         return ProjectDto.builder()
                 .id(p.getId())
                 .name(p.getName())
-                .teamName(p.getTeamName())
+                .teamId(p.getTeam() != null ? p.getTeam().getId() : null)
+                .teamName(p.getTeam() != null ? p.getTeam().getName() : null)
                 .description(p.getDescription())
                 .dueDate(p.getDueDate())
                 .status(p.getStatus())

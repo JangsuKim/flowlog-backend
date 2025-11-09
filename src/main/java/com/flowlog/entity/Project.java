@@ -23,8 +23,9 @@ public class Project {
     @Column(nullable = false, length = 255)
     private String name;
 
-    @Column(nullable = false, length = 100)
-    private String teamName;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_id")  // FK 연결
+    private Team team;
 
     @Column(columnDefinition = "TEXT")
     private String description;
