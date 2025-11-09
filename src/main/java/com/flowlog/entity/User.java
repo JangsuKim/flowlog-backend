@@ -31,6 +31,9 @@ public class User {
     @Column(nullable = false, length = 100)
     private String name;
 
+    @Column(name = "team_name")
+    private String teamName;
+
     @Column(length = 255)
     private String profileImage;
 
